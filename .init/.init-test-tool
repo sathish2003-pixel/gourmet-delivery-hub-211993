@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/gourmet-delivery-hub-211993/food_delivery_frontend"
+}
