@@ -23,6 +23,8 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
   const [expandedSections, setExpandedSections] = useState({});
   const [sortBy, setSortBy] = useState('fastest');
   const [vegFilter, setVegFilter] = useState('all'); // 'veg', 'all', 'non-veg'
+  const [pureVegFilter, setPureVegFilter] = useState('all'); // 'all', 'pure-veg'
+  const [offersFilter, setOffersFilter] = useState('all'); // 'all', 'offers'
   
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
@@ -68,6 +70,16 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
       filteredItems = filteredItems.filter(item => item.isVeg === true);
     } else if (vegFilter === 'non-veg') {
       filteredItems = filteredItems.filter(item => item.isVeg === false);
+    }
+    
+    // Apply pure veg filter
+    if (pureVegFilter === 'pure-veg') {
+      filteredItems = filteredItems.filter(item => item.isVeg === true);
+    }
+    
+    // Apply offers filter
+    if (offersFilter === 'offers') {
+      filteredItems = filteredItems.filter(item => item.hasOffer === true);
     }
     
     // Then sort
@@ -126,6 +138,16 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
     { value: 'non-veg', label: 'Non-Veg' },
   ];
 
+  const pureVegFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'pure-veg', label: 'Pure Veg' },
+  ];
+
+  const offersFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'offers', label: 'Offers' },
+  ];
+
   // Initialize expanded sections on first load (top 1-2 sections expanded by default)
   useEffect(() => {
     if (!isLoading && Object.keys(menuByCategory).length > 0 && Object.keys(expandedSections).length === 0) {
@@ -137,7 +159,7 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
       });
       setExpandedSections(initialExpanded);
     }
-  }, [isLoading, menuByCategory, expandedSections]);
+  }, [isLoading]);
 
   // Toggle section expand/collapse
   const toggleSection = (categoryName) => {
@@ -361,6 +383,26 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
               />
             </div>
             <div className="sort-control-divider"></div>
+            <div className="filter-control-group-details">
+              <span className="sort-label">Pure Veg:</span>
+              <SegmentedControl
+                options={pureVegFilterOptions}
+                value={pureVegFilter}
+                onChange={setPureVegFilter}
+                ariaLabel="Filter by pure veg only"
+              />
+            </div>
+            <div className="sort-control-divider"></div>
+            <div className="filter-control-group-details">
+              <span className="sort-label">Offers:</span>
+              <SegmentedControl
+                options={offersFilterOptions}
+                value={offersFilter}
+                onChange={setOffersFilter}
+                ariaLabel="Filter by offers"
+              />
+            </div>
+            <div className="sort-control-divider"></div>
             <div className="sort-control-group-details">
               <span className="sort-label">Sort:</span>
               <SegmentedControl
@@ -446,6 +488,16 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
                                 aria-label="Vegetarian"
                                 title="Vegetarian"
                               ></span>
+                            )}
+                            {item.hasOffer && item.offerText && (
+                              <span 
+                                className="dish-offer-badge" 
+                                role="status" 
+                                aria-label={`Offer: ${item.offerText}`}
+                                title={item.offerText}
+                              >
+                                🏷️ {item.offerText}
+                              </span>
                             )}
                           </div>
 

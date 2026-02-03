@@ -25,7 +25,10 @@ function App() {
     vegOnly: false,
     vegFilter: 'all', // 'veg', 'all', 'non-veg'
     ratingFilter: 'all', // 'all', '4.0+', '4.5+'
-    deliveryFeeFilter: 'all' // 'all', 'low'
+    deliveryFeeFilter: 'all', // 'all', 'low'
+    offersFilter: 'all', // 'all', 'offers'
+    distanceFilter: 'all', // 'all', 'near'
+    pureVegFilter: 'all' // 'all', 'pure-veg'
   });
   const [sortBy, setSortBy] = useState('fastest');
   const [cartItems, setCartItems] = useState([]);
@@ -125,14 +128,30 @@ function App() {
 
       let matchesDeliveryFeeFilter = true;
       if (filters.deliveryFeeFilter === 'low') {
-        // Assuming low delivery fee is based on price range or could be a separate field
-        // For now, using priceRange as proxy ($ = low fee)
-        matchesDeliveryFeeFilter = restaurant.priceRange === '$' || restaurant.deliveryFee === 'Free';
+        matchesDeliveryFeeFilter = restaurant.deliveryFee === 'Free' || restaurant.priceRange === '$';
+      }
+
+      // New filters: Offers, Distance, Pure Veg
+      let matchesOffersFilter = true;
+      if (filters.offersFilter === 'offers') {
+        matchesOffersFilter = restaurant.hasOffer === true;
+      }
+
+      let matchesDistanceFilter = true;
+      if (filters.distanceFilter === 'near') {
+        // "Near" defined as within 5km
+        matchesDistanceFilter = restaurant.distanceKm <= 5.0;
+      }
+
+      let matchesPureVegFilter = true;
+      if (filters.pureVegFilter === 'pure-veg') {
+        matchesPureVegFilter = restaurant.isPureVeg === true;
       }
 
       return matchesSearch && matchesCuisine && matchesRating && matchesDeliveryTime && 
              matchesPriceRange && matchesVegOnly && matchesVegFilter && matchesRatingFilter && 
-             matchesDeliveryFeeFilter;
+             matchesDeliveryFeeFilter && matchesOffersFilter && matchesDistanceFilter && 
+             matchesPureVegFilter;
     });
 
     // Apply sorting
@@ -191,6 +210,21 @@ function App() {
     { value: 'low', label: 'Low' },
   ];
 
+  const offersFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'offers', label: 'Offers' },
+  ];
+
+  const distanceFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'near', label: 'Near' },
+  ];
+
+  const pureVegFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'pure-veg', label: 'Pure Veg' },
+  ];
+
   // Handlers for segmented controls
   const handleVegFilterChange = (value) => {
     setFilters({ ...filters, vegFilter: value });
@@ -202,6 +236,18 @@ function App() {
 
   const handleDeliveryFeeFilterChange = (value) => {
     setFilters({ ...filters, deliveryFeeFilter: value });
+  };
+
+  const handleOffersFilterChange = (value) => {
+    setFilters({ ...filters, offersFilter: value });
+  };
+
+  const handleDistanceFilterChange = (value) => {
+    setFilters({ ...filters, distanceFilter: value });
+  };
+
+  const handlePureVegFilterChange = (value) => {
+    setFilters({ ...filters, pureVegFilter: value });
   };
 
   return (
@@ -276,6 +322,33 @@ function App() {
                                 value={filters.deliveryFeeFilter}
                                 onChange={handleDeliveryFeeFilterChange}
                                 ariaLabel="Filter by delivery fee"
+                              />
+                            </div>
+                            <div className="filter-control-group">
+                              <span className="filter-control-label">Offers:</span>
+                              <SegmentedControl
+                                options={offersFilterOptions}
+                                value={filters.offersFilter}
+                                onChange={handleOffersFilterChange}
+                                ariaLabel="Filter by offers"
+                              />
+                            </div>
+                            <div className="filter-control-group">
+                              <span className="filter-control-label">Distance:</span>
+                              <SegmentedControl
+                                options={distanceFilterOptions}
+                                value={filters.distanceFilter}
+                                onChange={handleDistanceFilterChange}
+                                ariaLabel="Filter by distance"
+                              />
+                            </div>
+                            <div className="filter-control-group">
+                              <span className="filter-control-label">Pure Veg:</span>
+                              <SegmentedControl
+                                options={pureVegFilterOptions}
+                                value={filters.pureVegFilter}
+                                onChange={handlePureVegFilterChange}
+                                ariaLabel="Filter by pure veg only"
                               />
                             </div>
                           </div>

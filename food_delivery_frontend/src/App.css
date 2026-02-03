@@ -121,9 +121,10 @@
 
 .section-header-filters {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   flex-wrap: wrap;
   align-items: center;
+  max-width: 100%;
 }
 
 .filter-control-group {
@@ -239,11 +240,16 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
+    width: 100%;
   }
 
   .sort-label-main,
   .filter-control-label {
     font-size: var(--font-xs);
+  }
+
+  .filter-control-group {
+    width: 100%;
   }
 
   .restaurant-grid {

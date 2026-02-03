@@ -376,7 +376,7 @@
   padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   flex-wrap: wrap;
 }
 
@@ -626,6 +626,24 @@
   background: var(--success);
 }
 
+.dish-offer-badge {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  background: var(--swiggy-orange);
+  color: var(--text-white);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
 .dish-content {
   padding: var(--spacing-md);
   flex: 1;
@@ -832,6 +850,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-xs);
+    width: 100%;
   }
 
   .sort-control-divider {
