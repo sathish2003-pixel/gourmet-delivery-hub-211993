@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './RestaurantDetails.css';
+import SegmentedControl from '../components/SegmentedControl';
 
 // PUBLIC_INTERFACE
 /**
  * Restaurant details page with modern UI, sticky category tabs, scroll-based section highlighting,
- * skeleton loaders, collapsible sections, and improved accessibility
+ * skeleton loaders, collapsible sections, iOS-style sorting, and improved accessibility
  * @param {Object} props - Component props
  * @param {Array} props.restaurants - List of all restaurants
  * @param {Object} props.menuItems - Menu items grouped by restaurant ID
@@ -20,6 +21,7 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
   const [isLoading, setIsLoading] = useState(true);
   const [isScrolling, setIsScrolling] = useState(false);
   const [expandedSections, setExpandedSections] = useState({});
+  const [sortBy, setSortBy] = useState('fastest');
   
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
@@ -57,6 +59,26 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
 
   const categories = getCategoriesWithCounts();
 
+  // Sort menu items based on selected sort option
+  const sortMenuItems = (items) => {
+    const sortedItems = [...items];
+    
+    switch (sortBy) {
+      case 'fastest':
+        // Sort by availability/popularity (simulated - in real app would use delivery time)
+        return sortedItems;
+      case 'rating':
+        // Sort by rating (simulated - would use actual item ratings)
+        return sortedItems.sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5));
+      case 'price-low':
+        return sortedItems.sort((a, b) => a.price - b.price);
+      case 'price-high':
+        return sortedItems.sort((a, b) => b.price - a.price);
+      default:
+        return sortedItems;
+    }
+  };
+
   // Group menu items by category
   const getMenuByCategory = () => {
     if (activeCategory === 'All') {
@@ -67,13 +89,28 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
         acc[item.category].push(item);
         return acc;
       }, {});
+      
+      // Apply sorting to each category
+      Object.keys(grouped).forEach(category => {
+        grouped[category] = sortMenuItems(grouped[category]);
+      });
+      
       return grouped;
     } else {
-      return { [activeCategory]: menu.filter(item => item.category === activeCategory) };
+      const filteredItems = menu.filter(item => item.category === activeCategory);
+      return { [activeCategory]: sortMenuItems(filteredItems) };
     }
   };
 
   const menuByCategory = getMenuByCategory();
+  
+  // Sort options for segmented control
+  const sortOptions = [
+    { value: 'fastest', label: 'Fastest' },
+    { value: 'rating', label: 'Rating' },
+    { value: 'price-low', label: 'Price ↑' },
+    { value: 'price-high', label: 'Price ↓' },
+  ];
 
   // Initialize expanded sections on first load (top 1-2 sections expanded by default)
   useEffect(() => {
@@ -150,7 +187,7 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
       const section = sectionRefs.current[sectionKey];
       
       if (section) {
-        const offset = 160; // Account for sticky header + sticky tabs
+        const offset = 200; // Account for sticky header + sticky tabs + sort control
         const elementPosition = section.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - offset;
 
@@ -295,6 +332,21 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
           )}
         </div>
       </div>
+
+      {/* Sort Control - iOS Style */}
+      {!isLoading && (
+        <div className="sort-control-container">
+          <div className="sort-control-wrapper">
+            <span className="sort-label">Sort by:</span>
+            <SegmentedControl
+              options={sortOptions}
+              value={sortBy}
+              onChange={setSortBy}
+              ariaLabel="Sort menu items"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Menu Items by Category */}
       <div className="menu-container">

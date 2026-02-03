@@ -7,12 +7,13 @@ import FilterChips from './components/FilterChips';
 import FilterSidebar from './components/FilterSidebar';
 import RestaurantCard from './components/RestaurantCard';
 import RestaurantDetails from './pages/RestaurantDetails';
+import SegmentedControl from './components/SegmentedControl';
 import { restaurants, menuItems, promotionalBanners, cuisineTypes } from './data/mockData';
 
 // PUBLIC_INTERFACE
 /**
  * Main application component with React Router navigation
- * Manages state for search, filters, and cart
+ * Manages state for search, filters, sorting, and cart
  */
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +24,7 @@ function App() {
     priceRange: 'All',
     vegOnly: false
   });
+  const [sortBy, setSortBy] = useState('fastest');
   const [cartItems, setCartItems] = useState([]);
 
   // PUBLIC_INTERFACE
@@ -76,10 +78,10 @@ function App() {
 
   // PUBLIC_INTERFACE
   /**
-   * Filter restaurants based on current filters and search query
+   * Filter and sort restaurants based on current filters, search query, and sort option
    */
   const getFilteredRestaurants = () => {
-    return restaurants.filter(restaurant => {
+    const filtered = restaurants.filter(restaurant => {
       const matchesSearch = searchQuery === '' || 
         restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,7 +107,45 @@ function App() {
 
       return matchesSearch && matchesCuisine && matchesRating && matchesDeliveryTime && matchesPriceRange && matchesVegOnly;
     });
+
+    // Apply sorting
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case 'fastest':
+        sorted.sort((a, b) => {
+          const aTime = parseInt(a.deliveryTime.split('-')[0]);
+          const bTime = parseInt(b.deliveryTime.split('-')[0]);
+          return aTime - bTime;
+        });
+        break;
+      case 'rating':
+        sorted.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'price-low':
+        sorted.sort((a, b) => {
+          const priceOrder = { '$': 1, '$$': 2, '$$$': 3 };
+          return (priceOrder[a.priceRange] || 2) - (priceOrder[b.priceRange] || 2);
+        });
+        break;
+      case 'price-high':
+        sorted.sort((a, b) => {
+          const priceOrder = { '$': 1, '$$': 2, '$$$': 3 };
+          return (priceOrder[b.priceRange] || 2) - (priceOrder[a.priceRange] || 2);
+        });
+        break;
+      default:
+        break;
+    }
+
+    return sorted;
   };
+  
+  const sortOptions = [
+    { value: 'fastest', label: 'Fastest' },
+    { value: 'rating', label: 'Rating' },
+    { value: 'price-low', label: 'Price ↑' },
+    { value: 'price-high', label: 'Price ↓' },
+  ];
 
   return (
     <Router>
@@ -144,12 +184,23 @@ function App() {
 
                     <div className="restaurant-section">
                       <div className="section-header">
-                        <h1 className="section-title">
-                          {getFilteredRestaurants().length} restaurants
-                        </h1>
-                        <p className="section-subtitle">
-                          delivering to your location
-                        </p>
+                        <div className="section-header-text">
+                          <h1 className="section-title">
+                            {getFilteredRestaurants().length} restaurants
+                          </h1>
+                          <p className="section-subtitle">
+                            delivering to your location
+                          </p>
+                        </div>
+                        <div className="section-header-sort">
+                          <span className="sort-label-main">Sort by:</span>
+                          <SegmentedControl
+                            options={sortOptions}
+                            value={sortBy}
+                            onChange={setSortBy}
+                            ariaLabel="Sort restaurants"
+                          />
+                        </div>
                       </div>
 
                       <div className="restaurant-grid">
