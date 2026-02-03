@@ -358,7 +358,7 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Sort Control - iOS Style */
+/* Filter and Sort Control - iOS Style */
 .sort-control-container {
   position: sticky;
   top: calc(80px + 61px); /* Navbar height + category tabs height */
@@ -376,7 +376,26 @@
   padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
   align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.filter-control-group-details {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-md);
+}
+
+.sort-control-group-details {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.sort-control-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-light);
 }
 
 .sort-label {
@@ -804,8 +823,19 @@
   .sort-control-wrapper {
     padding: var(--spacing-sm) var(--spacing-md);
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: var(--spacing-sm);
+  }
+
+  .filter-control-group-details,
+  .sort-control-group-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .sort-control-divider {
+    display: none;
   }
 
   .sort-label {

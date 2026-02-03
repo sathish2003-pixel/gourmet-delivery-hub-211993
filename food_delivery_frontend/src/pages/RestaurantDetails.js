@@ -22,6 +22,7 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
   const [isScrolling, setIsScrolling] = useState(false);
   const [expandedSections, setExpandedSections] = useState({});
   const [sortBy, setSortBy] = useState('fastest');
+  const [vegFilter, setVegFilter] = useState('all'); // 'veg', 'all', 'non-veg'
   
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
@@ -59,23 +60,30 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
 
   const categories = getCategoriesWithCounts();
 
-  // Sort menu items based on selected sort option
-  const sortMenuItems = (items) => {
-    const sortedItems = [...items];
+  // Sort and filter menu items based on selected options
+  const sortAndFilterMenuItems = (items) => {
+    // First, apply veg filter
+    let filteredItems = [...items];
+    if (vegFilter === 'veg') {
+      filteredItems = filteredItems.filter(item => item.isVeg === true);
+    } else if (vegFilter === 'non-veg') {
+      filteredItems = filteredItems.filter(item => item.isVeg === false);
+    }
     
+    // Then sort
     switch (sortBy) {
       case 'fastest':
         // Sort by availability/popularity (simulated - in real app would use delivery time)
-        return sortedItems;
+        return filteredItems;
       case 'rating':
         // Sort by rating (simulated - would use actual item ratings)
-        return sortedItems.sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5));
+        return filteredItems.sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5));
       case 'price-low':
-        return sortedItems.sort((a, b) => a.price - b.price);
+        return filteredItems.sort((a, b) => a.price - b.price);
       case 'price-high':
-        return sortedItems.sort((a, b) => b.price - a.price);
+        return filteredItems.sort((a, b) => b.price - a.price);
       default:
-        return sortedItems;
+        return filteredItems;
     }
   };
 
@@ -90,15 +98,15 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
         return acc;
       }, {});
       
-      // Apply sorting to each category
+      // Apply sorting and filtering to each category
       Object.keys(grouped).forEach(category => {
-        grouped[category] = sortMenuItems(grouped[category]);
+        grouped[category] = sortAndFilterMenuItems(grouped[category]);
       });
       
       return grouped;
     } else {
       const filteredItems = menu.filter(item => item.category === activeCategory);
-      return { [activeCategory]: sortMenuItems(filteredItems) };
+      return { [activeCategory]: sortAndFilterMenuItems(filteredItems) };
     }
   };
 
@@ -110,6 +118,12 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
     { value: 'rating', label: 'Rating' },
     { value: 'price-low', label: 'Price ↑' },
     { value: 'price-high', label: 'Price ↓' },
+  ];
+
+  const vegFilterOptions = [
+    { value: 'veg', label: 'Veg' },
+    { value: 'all', label: 'All' },
+    { value: 'non-veg', label: 'Non-Veg' },
   ];
 
   // Initialize expanded sections on first load (top 1-2 sections expanded by default)
@@ -333,17 +347,29 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
         </div>
       </div>
 
-      {/* Sort Control - iOS Style */}
+      {/* Filter and Sort Controls - iOS Style */}
       {!isLoading && (
         <div className="sort-control-container">
           <div className="sort-control-wrapper">
-            <span className="sort-label">Sort by:</span>
-            <SegmentedControl
-              options={sortOptions}
-              value={sortBy}
-              onChange={setSortBy}
-              ariaLabel="Sort menu items"
-            />
+            <div className="filter-control-group-details">
+              <span className="sort-label">Type:</span>
+              <SegmentedControl
+                options={vegFilterOptions}
+                value={vegFilter}
+                onChange={setVegFilter}
+                ariaLabel="Filter by food type"
+              />
+            </div>
+            <div className="sort-control-divider"></div>
+            <div className="sort-control-group-details">
+              <span className="sort-label">Sort:</span>
+              <SegmentedControl
+                options={sortOptions}
+                value={sortBy}
+                onChange={setSortBy}
+                ariaLabel="Sort menu items"
+              />
+            </div>
           </div>
         </div>
       )}

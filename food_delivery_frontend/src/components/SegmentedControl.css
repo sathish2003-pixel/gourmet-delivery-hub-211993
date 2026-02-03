@@ -33,7 +33,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-sm) var(--spacing-lg);
-  min-width: 100px;
+  min-width: 80px;
   background: transparent;
   border: none;
   border-radius: calc(var(--radius-full) - 3px);
@@ -88,7 +88,7 @@
 /* Compact size variant */
 .segmented-control-container.compact .segmented-control-option {
   padding: var(--spacing-xs) var(--spacing-md);
-  min-width: 80px;
+  min-width: 60px;
   font-size: var(--font-xs);
 }
 

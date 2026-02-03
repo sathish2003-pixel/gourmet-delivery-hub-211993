@@ -9,8 +9,9 @@ import './SegmentedControl.css';
  * @param {string} props.value - Currently selected value
  * @param {Function} props.onChange - Change handler
  * @param {string} props.ariaLabel - Accessibility label for the control group
+ * @param {string} props.size - Size variant: 'default', 'compact', 'large'
  */
-const SegmentedControl = ({ options, value, onChange, ariaLabel = 'Segmented control' }) => {
+const SegmentedControl = ({ options, value, onChange, ariaLabel = 'Segmented control', size = 'default' }) => {
   const [thumbStyle, setThumbStyle] = useState({});
   const optionRefs = useRef([]);
   const containerRef = useRef(null);
@@ -72,7 +73,7 @@ const SegmentedControl = ({ options, value, onChange, ariaLabel = 'Segmented con
 
   return (
     <div 
-      className="segmented-control-container"
+      className={`segmented-control-container ${size !== 'default' ? size : ''}`}
       role="radiogroup"
       aria-label={ariaLabel}
       ref={containerRef}

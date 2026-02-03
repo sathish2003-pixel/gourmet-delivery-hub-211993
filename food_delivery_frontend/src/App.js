@@ -22,7 +22,10 @@ function App() {
     rating: 0,
     deliveryTime: 'All',
     priceRange: 'All',
-    vegOnly: false
+    vegOnly: false,
+    vegFilter: 'all', // 'veg', 'all', 'non-veg'
+    ratingFilter: 'all', // 'all', '4.0+', '4.5+'
+    deliveryFeeFilter: 'all' // 'all', 'low'
   });
   const [sortBy, setSortBy] = useState('fastest');
   const [cartItems, setCartItems] = useState([]);
@@ -105,7 +108,31 @@ function App() {
       const matchesPriceRange = filters.priceRange === 'All' || restaurant.priceRange === filters.priceRange;
       const matchesVegOnly = !filters.vegOnly || restaurant.isVeg;
 
-      return matchesSearch && matchesCuisine && matchesRating && matchesDeliveryTime && matchesPriceRange && matchesVegOnly;
+      // New segmented control filters
+      let matchesVegFilter = true;
+      if (filters.vegFilter === 'veg') {
+        matchesVegFilter = restaurant.isVeg === true;
+      } else if (filters.vegFilter === 'non-veg') {
+        matchesVegFilter = restaurant.isVeg === false;
+      }
+
+      let matchesRatingFilter = true;
+      if (filters.ratingFilter === '4.0+') {
+        matchesRatingFilter = restaurant.rating >= 4.0;
+      } else if (filters.ratingFilter === '4.5+') {
+        matchesRatingFilter = restaurant.rating >= 4.5;
+      }
+
+      let matchesDeliveryFeeFilter = true;
+      if (filters.deliveryFeeFilter === 'low') {
+        // Assuming low delivery fee is based on price range or could be a separate field
+        // For now, using priceRange as proxy ($ = low fee)
+        matchesDeliveryFeeFilter = restaurant.priceRange === '$' || restaurant.deliveryFee === 'Free';
+      }
+
+      return matchesSearch && matchesCuisine && matchesRating && matchesDeliveryTime && 
+             matchesPriceRange && matchesVegOnly && matchesVegFilter && matchesRatingFilter && 
+             matchesDeliveryFeeFilter;
     });
 
     // Apply sorting
@@ -146,6 +173,36 @@ function App() {
     { value: 'price-low', label: 'Price ↑' },
     { value: 'price-high', label: 'Price ↓' },
   ];
+
+  const vegFilterOptions = [
+    { value: 'veg', label: 'Veg' },
+    { value: 'all', label: 'All' },
+    { value: 'non-veg', label: 'Non-Veg' },
+  ];
+
+  const ratingFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: '4.0+', label: '4.0+' },
+    { value: '4.5+', label: '4.5+' },
+  ];
+
+  const deliveryFeeFilterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'low', label: 'Low' },
+  ];
+
+  // Handlers for segmented controls
+  const handleVegFilterChange = (value) => {
+    setFilters({ ...filters, vegFilter: value });
+  };
+
+  const handleRatingFilterChange = (value) => {
+    setFilters({ ...filters, ratingFilter: value });
+  };
+
+  const handleDeliveryFeeFilterChange = (value) => {
+    setFilters({ ...filters, deliveryFeeFilter: value });
+  };
 
   return (
     <Router>
@@ -192,14 +249,45 @@ function App() {
                             delivering to your location
                           </p>
                         </div>
-                        <div className="section-header-sort">
-                          <span className="sort-label-main">Sort by:</span>
-                          <SegmentedControl
-                            options={sortOptions}
-                            value={sortBy}
-                            onChange={setSortBy}
-                            ariaLabel="Sort restaurants"
-                          />
+                        <div className="section-header-controls">
+                          <div className="section-header-filters">
+                            <div className="filter-control-group">
+                              <span className="filter-control-label">Type:</span>
+                              <SegmentedControl
+                                options={vegFilterOptions}
+                                value={filters.vegFilter}
+                                onChange={handleVegFilterChange}
+                                ariaLabel="Filter by food type"
+                              />
+                            </div>
+                            <div className="filter-control-group">
+                              <span className="filter-control-label">Rating:</span>
+                              <SegmentedControl
+                                options={ratingFilterOptions}
+                                value={filters.ratingFilter}
+                                onChange={handleRatingFilterChange}
+                                ariaLabel="Filter by rating"
+                              />
+                            </div>
+                            <div className="filter-control-group">
+                              <span className="filter-control-label">Delivery:</span>
+                              <SegmentedControl
+                                options={deliveryFeeFilterOptions}
+                                value={filters.deliveryFeeFilter}
+                                onChange={handleDeliveryFeeFilterChange}
+                                ariaLabel="Filter by delivery fee"
+                              />
+                            </div>
+                          </div>
+                          <div className="section-header-sort">
+                            <span className="sort-label-main">Sort:</span>
+                            <SegmentedControl
+                              options={sortOptions}
+                              value={sortBy}
+                              onChange={setSortBy}
+                              ariaLabel="Sort restaurants"
+                            />
+                          </div>
                         </div>
                       </div>
 
