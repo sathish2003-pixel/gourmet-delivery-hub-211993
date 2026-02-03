@@ -1,16 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RestaurantCard.css';
 
 // PUBLIC_INTERFACE
 /**
- * Restaurant card component - Swiggy style with rating badges and offer ribbons
+ * Restaurant card component with navigation to details page
  * @param {Object} props - Component props
  * @param {Object} props.restaurant - Restaurant data
- * @param {Function} props.onClick - Click handler for card
  */
-const RestaurantCard = ({ restaurant, onClick }) => {
+const RestaurantCard = ({ restaurant }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/restaurant/${restaurant.id}`);
+  };
+
   return (
-    <div className="restaurant-card" onClick={onClick}>
+    <div className="restaurant-card" onClick={handleClick}>
       {restaurant.offerText && (
         <div className="offer-ribbon">
           {restaurant.offerText}

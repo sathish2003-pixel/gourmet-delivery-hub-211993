@@ -1,18 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar';
 import BannerCarousel from './components/BannerCarousel';
 import FilterChips from './components/FilterChips';
 import FilterSidebar from './components/FilterSidebar';
 import RestaurantCard from './components/RestaurantCard';
-import FloatingCart from './components/FloatingCart';
-import RestaurantModal from './components/RestaurantModal';
+import RestaurantDetails from './pages/RestaurantDetails';
 import { restaurants, menuItems, promotionalBanners, cuisineTypes } from './data/mockData';
 
 // PUBLIC_INTERFACE
 /**
- * Main application component for the Gourmet Hub food delivery app (Swiggy-style)
- * Manages state for search, filters, cart, and restaurant details
+ * Main application component with React Router navigation
+ * Manages state for search, filters, and cart
  */
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,48 +24,6 @@ function App() {
     vegOnly: false
   });
   const [cartItems, setCartItems] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-
-  // PUBLIC_INTERFACE
-  /**
-   * Filter and search restaurants based on current filters and search query
-   */
-  const filteredRestaurants = useMemo(() => {
-    return restaurants.filter(restaurant => {
-      // Search filter
-      const matchesSearch = searchQuery === '' || 
-        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        restaurant.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Cuisine filter
-      const matchesCuisine = filters.cuisine === 'All' || restaurant.cuisine.includes(filters.cuisine);
-
-      // Rating filter
-      const matchesRating = filters.rating === 0 || restaurant.rating >= filters.rating;
-
-      // Delivery time filter
-      let matchesDeliveryTime = true;
-      if (filters.deliveryTime !== 'All') {
-        const deliveryMin = parseInt(restaurant.deliveryTime.split('-')[0]);
-        if (filters.deliveryTime === 'Fast (< 30 min)') {
-          matchesDeliveryTime = deliveryMin < 30;
-        } else if (filters.deliveryTime === 'Medium (30-40 min)') {
-          matchesDeliveryTime = deliveryMin >= 30 && deliveryMin <= 40;
-        } else if (filters.deliveryTime === 'Standard (> 40 min)') {
-          matchesDeliveryTime = deliveryMin > 40;
-        }
-      }
-
-      // Price range filter
-      const matchesPriceRange = filters.priceRange === 'All' || restaurant.priceRange === filters.priceRange;
-
-      // Vegetarian filter
-      const matchesVegOnly = !filters.vegOnly || restaurant.isVeg;
-
-      return matchesSearch && matchesCuisine && matchesRating && matchesDeliveryTime && matchesPriceRange && matchesVegOnly;
-    });
-  }, [searchQuery, filters]);
 
   // PUBLIC_INTERFACE
   /**
@@ -118,95 +76,124 @@ function App() {
 
   // PUBLIC_INTERFACE
   /**
-   * Handle opening restaurant detail modal
+   * Filter restaurants based on current filters and search query
    */
-  const handleRestaurantClick = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-  };
+  const getFilteredRestaurants = () => {
+    return restaurants.filter(restaurant => {
+      const matchesSearch = searchQuery === '' || 
+        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        restaurant.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-  // PUBLIC_INTERFACE
-  /**
-   * Handle closing restaurant detail modal
-   */
-  const handleCloseModal = () => {
-    setSelectedRestaurant(null);
+      const matchesCuisine = filters.cuisine === 'All' || restaurant.cuisine.includes(filters.cuisine);
+      const matchesRating = filters.rating === 0 || restaurant.rating >= filters.rating;
+
+      let matchesDeliveryTime = true;
+      if (filters.deliveryTime !== 'All') {
+        const deliveryMin = parseInt(restaurant.deliveryTime.split('-')[0]);
+        if (filters.deliveryTime === 'Fast (< 30 min)') {
+          matchesDeliveryTime = deliveryMin < 30;
+        } else if (filters.deliveryTime === 'Medium (30-40 min)') {
+          matchesDeliveryTime = deliveryMin >= 30 && deliveryMin <= 40;
+        } else if (filters.deliveryTime === 'Standard (> 40 min)') {
+          matchesDeliveryTime = deliveryMin > 40;
+        }
+      }
+
+      const matchesPriceRange = filters.priceRange === 'All' || restaurant.priceRange === filters.priceRange;
+      const matchesVegOnly = !filters.vegOnly || restaurant.isVeg;
+
+      return matchesSearch && matchesCuisine && matchesRating && matchesDeliveryTime && matchesPriceRange && matchesVegOnly;
+    });
   };
 
   return (
-    <div className="App">
-      <Navbar 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+    <Router>
+      <div className="App">
+        <Navbar 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          cartItems={cartItems}
+          onRemoveItem={handleRemoveFromCart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onCheckout={handleCheckout}
+        />
 
-      <main className="main-content">
-        <div className="content-container">
-          <BannerCarousel banners={promotionalBanners} />
+        <Routes>
+          {/* Home Page Route */}
+          <Route 
+            path="/" 
+            element={
+              <main className="main-content">
+                <div className="content-container">
+                  <BannerCarousel banners={promotionalBanners} />
 
-          <FilterChips 
-            filters={filters}
-            onFilterChange={setFilters}
+                  <FilterChips 
+                    filters={filters}
+                    onFilterChange={setFilters}
+                  />
+
+                  <div className="layout-grid">
+                    <div className="filter-sidebar-container">
+                      <FilterSidebar 
+                        filters={filters}
+                        onFilterChange={setFilters}
+                        cuisineTypes={cuisineTypes}
+                      />
+                    </div>
+
+                    <div className="restaurant-section">
+                      <div className="section-header">
+                        <h1 className="section-title">
+                          {getFilteredRestaurants().length} restaurants
+                        </h1>
+                        <p className="section-subtitle">
+                          delivering to your location
+                        </p>
+                      </div>
+
+                      <div className="restaurant-grid">
+                        {getFilteredRestaurants().map(restaurant => (
+                          <RestaurantCard
+                            key={restaurant.id}
+                            restaurant={restaurant}
+                            onClick={() => window.location.href = `/restaurant/${restaurant.id}`}
+                          />
+                        ))}
+                      </div>
+
+                      {getFilteredRestaurants().length === 0 && (
+                        <div className="no-results">
+                          <p className="no-results-icon">🔍</p>
+                          <h3 className="no-results-title">No restaurants found</h3>
+                          <p className="no-results-text">
+                            Try adjusting your filters or search query
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </main>
+            } 
           />
 
-          <div className="layout-grid">
-            <div className="filter-sidebar-container">
-              <FilterSidebar 
-                filters={filters}
-                onFilterChange={setFilters}
-                cuisineTypes={cuisineTypes}
+          {/* Restaurant Details Page Route */}
+          <Route 
+            path="/restaurant/:id" 
+            element={
+              <RestaurantDetails
+                restaurants={restaurants}
+                menuItems={menuItems}
+                onAddToCart={handleAddToCart}
+                cartItems={cartItems}
+                onUpdateQuantity={handleUpdateQuantity}
               />
-            </div>
-
-            <div className="restaurant-section">
-              <div className="section-header">
-                <h1 className="section-title">
-                  {filteredRestaurants.length} restaurants
-                </h1>
-                <p className="section-subtitle">
-                  delivering to your location
-                </p>
-              </div>
-
-              <div className="restaurant-grid">
-                {filteredRestaurants.map(restaurant => (
-                  <RestaurantCard
-                    key={restaurant.id}
-                    restaurant={restaurant}
-                    onClick={() => handleRestaurantClick(restaurant)}
-                  />
-                ))}
-              </div>
-
-              {filteredRestaurants.length === 0 && (
-                <div className="no-results">
-                  <p className="no-results-icon">🔍</p>
-                  <h3 className="no-results-title">No restaurants found</h3>
-                  <p className="no-results-text">
-                    Try adjusting your filters or search query
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <FloatingCart
-        cartItems={cartItems}
-        onRemoveItem={handleRemoveFromCart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onCheckout={handleCheckout}
-      />
-
-      {selectedRestaurant && (
-        <RestaurantModal
-          restaurant={selectedRestaurant}
-          menuItems={menuItems[selectedRestaurant.id]}
-          onClose={handleCloseModal}
-          onAddToCart={handleAddToCart}
-        />
-      )}
-    </div>
+            } 
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
