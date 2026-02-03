@@ -3,7 +3,7 @@ import './Navbar.css';
 
 // PUBLIC_INTERFACE
 /**
- * Navigation bar component with search functionality and branding
+ * Navigation bar component - Swiggy style with location selector
  * @param {Object} props - Component props
  * @param {string} props.searchQuery - Current search query
  * @param {Function} props.onSearchChange - Search query change handler
@@ -15,12 +15,18 @@ const Navbar = ({ searchQuery, onSearchChange }) => {
         <div className="navbar-brand">
           <div className="brand-logo">
             <span className="logo-icon">🍔</span>
-            <span className="brand-name">Gourmet Hub</span>
+            <span className="brand-name">GourmetHub</span>
           </div>
-          <div className="brand-tagline">Retro Food Delivery</div>
+        </div>
+
+        <div className="location-selector">
+          <span role="img" aria-label="location">📍</span>
+          <span className="location-text">Your Location</span>
+          <span role="img" aria-label="dropdown">▼</span>
         </div>
         
         <div className="navbar-search">
+          <span className="search-icon">🔍</span>
           <input
             type="text"
             className="search-input"
@@ -29,19 +35,24 @@ const Navbar = ({ searchQuery, onSearchChange }) => {
             onChange={(e) => onSearchChange(e.target.value)}
             aria-label="Search restaurants"
           />
-          <button className="search-button" aria-label="Search">
-            🔍
-          </button>
         </div>
 
         <div className="navbar-actions">
-          <button className="nav-button">
-            <span className="button-icon">👤</span>
-            <span className="button-text">Sign In</span>
+          <button className="nav-link">
+            <span className="nav-link-icon">💼</span>
+            <span className="nav-link-text">Offers</span>
           </button>
-          <button className="nav-button nav-button-primary">
-            <span className="button-icon">🛒</span>
-            <span className="button-text">Cart</span>
+          <button className="nav-link">
+            <span className="nav-link-icon">❓</span>
+            <span className="nav-link-text">Help</span>
+          </button>
+          <button className="nav-link nav-button-signin">
+            <span className="nav-link-icon">👤</span>
+            <span className="nav-link-text">Sign In</span>
+          </button>
+          <button className="nav-link nav-button-cart">
+            <span className="nav-link-icon">🛒</span>
+            <span className="nav-link-text">Cart</span>
           </button>
         </div>
       </div>

@@ -3,7 +3,7 @@ import './BannerCarousel.css';
 
 // PUBLIC_INTERFACE
 /**
- * Promotional banner carousel component with auto-rotation
+ * Promotional banner carousel component - Swiggy style with pill tags
  * @param {Object} props - Component props
  * @param {Array} props.banners - Array of banner objects
  */
@@ -56,14 +56,14 @@ const BannerCarousel = ({ banners }) => {
               key={banner.id}
               className={`carousel-slide ${index === currentIndex ? 'active' : ''}`}
               style={{ 
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${banner.image})`,
-                backgroundColor: banner.bgColor
+                backgroundImage: `url(${banner.image})`,
               }}
             >
               <div className="slide-content">
+                {banner.tag && <span className="slide-tag">{banner.tag}</span>}
                 <h2 className="slide-title">{banner.title}</h2>
                 <p className="slide-subtitle">{banner.subtitle}</p>
-                <button className="slide-button">Order Now</button>
+                <button className="slide-button">Order Now →</button>
               </div>
             </div>
           ))}

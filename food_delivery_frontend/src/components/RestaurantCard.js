@@ -3,7 +3,7 @@ import './RestaurantCard.css';
 
 // PUBLIC_INTERFACE
 /**
- * Restaurant card component displaying restaurant information
+ * Restaurant card component - Swiggy style with rating badges and offer ribbons
  * @param {Object} props - Component props
  * @param {Object} props.restaurant - Restaurant data
  * @param {Function} props.onClick - Click handler for card
@@ -11,8 +11,10 @@ import './RestaurantCard.css';
 const RestaurantCard = ({ restaurant, onClick }) => {
   return (
     <div className="restaurant-card" onClick={onClick}>
-      {restaurant.promoted && (
-        <div className="promoted-badge">⭐ Promoted</div>
+      {restaurant.offerText && (
+        <div className="offer-ribbon">
+          {restaurant.offerText}
+        </div>
       )}
       
       <div className="card-image-container">
@@ -23,7 +25,7 @@ const RestaurantCard = ({ restaurant, onClick }) => {
           loading="lazy"
         />
         {restaurant.isVeg && (
-          <span className="veg-badge">🌱</span>
+          <span className="veg-badge" aria-label="Vegetarian"></span>
         )}
       </div>
 
@@ -33,23 +35,20 @@ const RestaurantCard = ({ restaurant, onClick }) => {
         <p className="card-description">{restaurant.description}</p>
 
         <div className="card-meta">
-          <div className="meta-item">
-            <span className="meta-icon">⭐</span>
-            <span className="meta-text">{restaurant.rating}</span>
+          <div className="meta-left">
+            <div className="rating-badge">
+              <span className="rating-star">★</span>
+              <span>{restaurant.rating}</span>
+            </div>
+            <div className="delivery-time">
+              <span>🕒</span>
+              <span>{restaurant.eta || restaurant.deliveryTime + ' mins'}</span>
+            </div>
           </div>
-          <div className="meta-item">
-            <span className="meta-icon">🕒</span>
-            <span className="meta-text">{restaurant.deliveryTime} min</span>
-          </div>
-          <div className="meta-item">
-            <span className="meta-icon">💰</span>
-            <span className="meta-text">{restaurant.priceRange}</span>
+          <div className="meta-right">
+            <span className="price-for-two">{restaurant.priceForTwo || restaurant.priceRange}</span>
           </div>
         </div>
-
-        <button className="card-button">
-          View Menu →
-        </button>
       </div>
     </div>
   );

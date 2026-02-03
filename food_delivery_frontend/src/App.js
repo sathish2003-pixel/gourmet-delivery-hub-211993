@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import './App.css';
 import Navbar from './components/Navbar';
 import BannerCarousel from './components/BannerCarousel';
+import FilterChips from './components/FilterChips';
 import FilterSidebar from './components/FilterSidebar';
 import RestaurantCard from './components/RestaurantCard';
 import FloatingCart from './components/FloatingCart';
@@ -10,7 +11,7 @@ import { restaurants, menuItems, promotionalBanners, cuisineTypes } from './data
 
 // PUBLIC_INTERFACE
 /**
- * Main application component for the Gourmet Hub food delivery app
+ * Main application component for the Gourmet Hub food delivery app (Swiggy-style)
  * Manages state for search, filters, cart, and restaurant details
  */
 function App() {
@@ -38,7 +39,7 @@ function App() {
         restaurant.description.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Cuisine filter
-      const matchesCuisine = filters.cuisine === 'All' || restaurant.cuisine === filters.cuisine;
+      const matchesCuisine = filters.cuisine === 'All' || restaurant.cuisine.includes(filters.cuisine);
 
       // Rating filter
       const matchesRating = filters.rating === 0 || restaurant.rating >= filters.rating;
@@ -142,20 +143,27 @@ function App() {
         <div className="content-container">
           <BannerCarousel banners={promotionalBanners} />
 
+          <FilterChips 
+            filters={filters}
+            onFilterChange={setFilters}
+          />
+
           <div className="layout-grid">
-            <FilterSidebar 
-              filters={filters}
-              onFilterChange={setFilters}
-              cuisineTypes={cuisineTypes}
-            />
+            <div className="filter-sidebar-container">
+              <FilterSidebar 
+                filters={filters}
+                onFilterChange={setFilters}
+                cuisineTypes={cuisineTypes}
+              />
+            </div>
 
             <div className="restaurant-section">
               <div className="section-header">
                 <h1 className="section-title">
-                  {filteredRestaurants.length} Restaurants Available
+                  {filteredRestaurants.length} restaurants
                 </h1>
                 <p className="section-subtitle">
-                  Choose from our selection of delicious restaurants
+                  delivering to your location
                 </p>
               </div>
 
