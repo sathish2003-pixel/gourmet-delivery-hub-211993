@@ -1,4 +1,4 @@
-/* Modern Navbar Styling */
+/* Modern Navbar Styling with Microinteractions */
 .navbar {
   background: var(--bg-primary);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -9,6 +9,7 @@
   z-index: var(--z-fixed);
   height: 80px;
   border-bottom: 1px solid var(--border-light);
+  transition: box-shadow var(--transition-base);
 }
 
 .navbar-container {
@@ -19,21 +20,33 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--spacing-xl);
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
 }
 
-/* Brand Section */
+/* Brand Section with Microinteractions */
 .navbar-brand {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform var(--transition-fast);
+  transition: all var(--transition-base);
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-md);
+  outline: none;
 }
 
 .navbar-brand:hover {
-  transform: scale(1.02);
+  transform: translateY(-1px);
+}
+
+.navbar-brand:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 3px;
+}
+
+.navbar-brand:active {
+  transform: scale(0.98);
 }
 
 .brand-logo {
@@ -43,8 +56,14 @@
 }
 
 .logo-icon {
-  font-size: 2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-base);
+}
+
+.navbar-brand:hover .logo-icon {
+  transform: rotate(-5deg) scale(1.05);
 }
 
 .brand-name {
@@ -52,9 +71,10 @@
   font-weight: var(--font-weight-bold);
   color: var(--swiggy-orange);
   letter-spacing: -0.5px;
+  transition: color var(--transition-fast);
 }
 
-/* Location Selector */
+/* Location Selector with Enhanced Interactions */
 .location-selector {
   display: flex;
   align-items: center;
@@ -66,16 +86,34 @@
   flex-shrink: 0;
   background: var(--bg-light);
   border: 1px solid var(--border-light);
+  outline: none;
 }
 
 .location-selector:hover {
   background: var(--bg-secondary);
-  border-color: var(--border-medium);
+  border-color: var(--swiggy-orange);
   box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.location-selector:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 2px;
+}
+
+.location-selector:active {
+  transform: scale(0.98);
 }
 
 .location-icon {
-  font-size: var(--font-lg);
+  display: flex;
+  align-items: center;
+  color: var(--swiggy-orange);
+  transition: transform var(--transition-fast);
+}
+
+.location-selector:hover .location-icon {
+  transform: scale(1.1);
 }
 
 .location-text {
@@ -89,11 +127,17 @@
 }
 
 .location-dropdown {
-  font-size: var(--font-xs);
+  display: flex;
+  align-items: center;
   color: var(--text-tertiary);
+  transition: transform var(--transition-fast);
 }
 
-/* Search Section */
+.location-selector:hover .location-dropdown {
+  transform: translateY(2px);
+}
+
+/* Search Section with Focus States */
 .navbar-search {
   flex: 1;
   max-width: 600px;
@@ -116,6 +160,12 @@
 
 .search-input::placeholder {
   color: var(--text-tertiary);
+  transition: opacity var(--transition-fast);
+}
+
+.search-input:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-primary);
 }
 
 .search-input:focus {
@@ -124,21 +174,32 @@
   box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.1);
 }
 
+.search-input:focus::placeholder {
+  opacity: 0.6;
+}
+
 .search-icon {
   position: absolute;
   left: var(--spacing-md);
   top: 50%;
   transform: translateY(-50%);
-  font-size: var(--font-lg);
   color: var(--text-tertiary);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
 }
 
-/* Navigation Actions */
+.search-input:focus ~ .search-icon,
+.search-input:hover ~ .search-icon {
+  color: var(--swiggy-orange);
+}
+
+/* Navigation Actions with Microinteractions */
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   flex-shrink: 0;
 }
 
@@ -157,22 +218,55 @@
   border: none;
   border-radius: var(--radius-md);
   position: relative;
+  outline: none;
 }
 
 .nav-link:hover {
   color: var(--swiggy-orange);
   background: var(--swiggy-orange-light);
+  transform: translateY(-1px);
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 2px;
+}
+
+.nav-link:active {
+  transform: scale(0.96);
 }
 
 .nav-link-icon {
-  font-size: var(--font-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.nav-link:hover .nav-link-icon {
+  transform: scale(1.1);
 }
 
 .nav-link-text {
   font-size: var(--font-base);
 }
 
-/* Sign In Button */
+/* Specific Nav Link Animations */
+.nav-link-offers:hover .nav-link-icon {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+.nav-link-help:hover .nav-link-icon {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+/* Sign In Button Enhanced */
 .nav-button-signin {
   color: var(--text-primary);
   font-weight: var(--font-weight-semibold);
@@ -180,9 +274,10 @@
 
 .nav-button-signin:hover {
   color: var(--swiggy-orange);
+  background: var(--swiggy-orange-light);
 }
 
-/* Cart Button - Modern Style */
+/* Cart Button - Modern Style with Microinteractions */
 .cart-wrapper {
   position: relative;
 }
@@ -200,7 +295,16 @@
   background: var(--swiggy-orange);
   color: var(--text-white);
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.nav-button-cart:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.nav-button-cart:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 3px;
 }
 
 .cart-badge {
@@ -216,9 +320,27 @@
   min-width: 20px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: badgePop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Cart Dropdown */
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.nav-button-cart:hover .cart-badge {
+  background: var(--text-white);
+  color: var(--swiggy-orange);
+}
+
+/* Cart Dropdown with Smooth Animation */
 .cart-dropdown {
   position: absolute;
   top: calc(100% + 12px);
@@ -232,29 +354,42 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--border-light);
-  animation: dropdownSlideIn 0.2s ease-out;
+  animation: dropdownSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes dropdownSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-15px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
+/* Empty Cart State */
 .cart-empty {
   padding: var(--spacing-2xl);
   text-align: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .cart-empty-icon {
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
   opacity: 0.5;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .cart-empty-text {
@@ -270,6 +405,7 @@
   margin: 0;
 }
 
+/* Cart Header */
 .cart-header-dropdown {
   padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--border-light);
@@ -283,6 +419,7 @@
   margin: 0;
 }
 
+/* Cart Items with Smooth Transitions */
 .cart-items-dropdown {
   flex: 1;
   overflow-y: auto;
@@ -290,16 +427,48 @@
   max-height: 300px;
 }
 
+.cart-items-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-items-dropdown::-webkit-scrollbar-track {
+  background: var(--bg-light);
+  border-radius: var(--radius-sm);
+}
+
+.cart-items-dropdown::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-sm);
+}
+
+.cart-items-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--border-dark);
+}
+
 .cart-item-dropdown {
   background: var(--bg-light);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-sm);
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
+  animation: slideInItem 0.3s ease-out;
+}
+
+@keyframes slideInItem {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .cart-item-dropdown:hover {
   background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(2px);
 }
 
 .cart-item-info-dropdown {
@@ -319,8 +488,8 @@
 
 .cart-item-price-dropdown {
   font-size: var(--font-sm);
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
+  color: var(--swiggy-orange);
+  font-weight: var(--font-weight-bold);
   margin: 0;
 }
 
@@ -330,6 +499,7 @@
   align-items: center;
 }
 
+/* Quantity Controls with Microinteractions */
 .quantity-controls-dropdown {
   display: flex;
   align-items: center;
@@ -338,6 +508,11 @@
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 4px var(--spacing-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.quantity-controls-dropdown:hover {
+  border-color: var(--swiggy-orange);
 }
 
 .quantity-btn-dropdown {
@@ -353,10 +528,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-sm);
+  outline: none;
 }
 
 .quantity-btn-dropdown:hover {
-  transform: scale(1.2);
+  transform: scale(1.3);
+  background: var(--swiggy-orange-light);
+}
+
+.quantity-btn-dropdown:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 1px;
+}
+
+.quantity-btn-dropdown:active {
+  transform: scale(1.1);
 }
 
 .quantity-value-dropdown {
@@ -367,6 +554,7 @@
   font-size: var(--font-sm);
 }
 
+/* Remove Button with Microinteractions */
 .remove-btn-dropdown {
   background: transparent;
   border: none;
@@ -380,12 +568,24 @@
   transition: all var(--transition-fast);
   font-size: var(--font-base);
   border-radius: var(--radius-sm);
+  outline: none;
 }
 
 .remove-btn-dropdown:hover {
   background: rgba(230, 57, 70, 0.1);
+  transform: scale(1.1) rotate(5deg);
 }
 
+.remove-btn-dropdown:focus-visible {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+
+.remove-btn-dropdown:active {
+  transform: scale(0.95);
+}
+
+/* Cart Footer */
 .cart-footer-dropdown {
   background: var(--bg-light);
   padding: var(--spacing-md) var(--spacing-lg);
@@ -409,9 +609,17 @@
 .total-amount-dropdown {
   font-size: var(--font-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
+  color: var(--swiggy-orange);
+  animation: priceUpdate 0.3s ease-out;
 }
 
+@keyframes priceUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Checkout Button with Enhanced Interactions */
 .checkout-btn-dropdown {
   width: 100%;
   padding: var(--spacing-md);
@@ -425,12 +633,42 @@
   transition: all var(--transition-base);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.checkout-btn-dropdown::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.checkout-btn-dropdown:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .checkout-btn-dropdown:hover {
   background: var(--swiggy-orange-hover);
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.checkout-btn-dropdown:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 3px;
+}
+
+.checkout-btn-dropdown:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Responsive Design */
@@ -481,5 +719,24 @@
 
   .cart-dropdown {
     width: 300px;
+    right: 0;
+    left: var(--spacing-md);
+  }
+}
+
+/* Focus visible styles for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--swiggy-orange);
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
