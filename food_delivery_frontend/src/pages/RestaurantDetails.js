@@ -5,7 +5,7 @@ import './RestaurantDetails.css';
 // PUBLIC_INTERFACE
 /**
  * Restaurant details page with modern UI, sticky category tabs, scroll-based section highlighting,
- * skeleton loaders, and improved accessibility
+ * skeleton loaders, collapsible sections, and improved accessibility
  * @param {Object} props - Component props
  * @param {Array} props.restaurants - List of all restaurants
  * @param {Object} props.menuItems - Menu items grouped by restaurant ID
@@ -19,6 +19,7 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
   const [activeCategory, setActiveCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({});
   
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
@@ -74,6 +75,27 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
 
   const menuByCategory = getMenuByCategory();
 
+  // Initialize expanded sections on first load (top 1-2 sections expanded by default)
+  useEffect(() => {
+    if (!isLoading && Object.keys(menuByCategory).length > 0 && Object.keys(expandedSections).length === 0) {
+      const categoryKeys = Object.keys(menuByCategory);
+      const initialExpanded = {};
+      // Expand first 2 sections by default
+      categoryKeys.slice(0, 2).forEach(key => {
+        initialExpanded[key] = true;
+      });
+      setExpandedSections(initialExpanded);
+    }
+  }, [isLoading, menuByCategory, expandedSections]);
+
+  // Toggle section expand/collapse
+  const toggleSection = (categoryName) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [categoryName]: !prev[categoryName]
+    }));
+  };
+
   // Setup Intersection Observer for scroll-based section highlighting
   useEffect(() => {
     if (isLoading || Object.keys(menuByCategory).length === 0) return;
@@ -114,18 +136,30 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
     setActiveCategory(categoryName);
 
     const sectionKey = categoryName === 'All' ? 'All-section' : categoryName;
-    const section = sectionRefs.current[sectionKey];
     
-    if (section) {
-      const offset = 160; // Account for sticky header + sticky tabs
-      const elementPosition = section.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+    // Expand the section if it's collapsed
+    if (!expandedSections[sectionKey]) {
+      setExpandedSections(prev => ({
+        ...prev,
+        [sectionKey]: true
+      }));
     }
+
+    // Wait a tick for expansion animation to start before scrolling
+    setTimeout(() => {
+      const section = sectionRefs.current[sectionKey];
+      
+      if (section) {
+        const offset = 160; // Account for sticky header + sticky tabs
+        const elementPosition = section.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 50);
 
     // Reset scrolling flag after scroll completes
     if (scrollTimeoutRef.current) {
@@ -278,87 +312,114 @@ const RestaurantDetails = ({ restaurants, menuItems, onAddToCart, cartItems, onU
             ))}
           </div>
         ) : (
-          Object.entries(menuByCategory).map(([categoryName, items]) => (
-            <section
-              key={categoryName}
-              className="menu-section"
-              ref={el => sectionRefs.current[categoryName] = el}
-              data-category={categoryName}
-              aria-labelledby={`section-${categoryName}`}
-            >
-              <div className="section-header-menu">
-                <h2 id={`section-${categoryName}`} className="section-title-menu">
-                  {categoryName}
-                </h2>
-                <p className="section-subtitle-menu">
-                  {items.length} {items.length === 1 ? 'item' : 'items'}
-                </p>
-              </div>
+          Object.entries(menuByCategory).map(([categoryName, items]) => {
+            const isExpanded = expandedSections[categoryName] ?? false;
+            const sectionId = `section-${categoryName}`;
+            const panelId = `panel-${categoryName}`;
 
-              <div className="menu-grid">
-                {items.map(item => {
-                  const quantity = getItemQuantity(item.id);
-                  return (
-                    <article key={item.id} className="dish-card">
-                      <div className="dish-image-container">
-                        <img src={item.image} alt={item.name} className="dish-image" />
-                        {item.isVeg && (
-                          <span 
-                            className="dish-veg-badge" 
-                            role="img" 
-                            aria-label="Vegetarian"
-                            title="Vegetarian"
-                          ></span>
-                        )}
-                      </div>
+            return (
+              <section
+                key={categoryName}
+                className="menu-section"
+                ref={el => sectionRefs.current[categoryName] = el}
+                data-category={categoryName}
+                aria-labelledby={sectionId}
+              >
+                <button
+                  className="section-header-menu collapsible"
+                  onClick={() => toggleSection(categoryName)}
+                  aria-expanded={isExpanded}
+                  aria-controls={panelId}
+                  id={sectionId}
+                >
+                  <div className="section-header-content">
+                    <h2 className="section-title-menu">
+                      {categoryName}
+                    </h2>
+                    <p className="section-subtitle-menu">
+                      {items.length} {items.length === 1 ? 'item' : 'items'}
+                    </p>
+                  </div>
+                  <span 
+                    className={`section-chevron ${isExpanded ? 'expanded' : ''}`}
+                    aria-hidden="true"
+                  >
+                    ▼
+                  </span>
+                </button>
 
-                      <div className="dish-content">
-                        <h3 className="dish-name">{item.name}</h3>
-                        {item.description && (
-                          <p className="dish-description">{item.description}</p>
-                        )}
-                        <div className="dish-footer">
-                          <span className="dish-price" aria-label={`Price ${(item.price * 80).toFixed(0)} rupees`}>
-                            ₹{(item.price * 80).toFixed(0)}
-                          </span>
-                          
-                          {quantity === 0 ? (
-                            <button 
-                              className="dish-add-btn"
-                              onClick={() => onAddToCart(item)}
-                              aria-label={`Add ${item.name} to cart`}
-                            >
-                              Add +
-                            </button>
-                          ) : (
-                            <div className="dish-quantity-controls" role="group" aria-label={`${item.name} quantity controls`}>
-                              <button
-                                className="quantity-btn"
-                                onClick={() => onUpdateQuantity(item.id, quantity - 1)}
-                                aria-label="Decrease quantity"
-                              >
-                                −
-                              </button>
-                              <span className="quantity-value" aria-live="polite" aria-atomic="true">
-                                {quantity}
+                <div 
+                  id={panelId}
+                  className={`menu-grid-container ${isExpanded ? 'expanded' : 'collapsed'}`}
+                  role="region"
+                  aria-hidden={!isExpanded}
+                >
+                  <div className="menu-grid">
+                    {items.map(item => {
+                      const quantity = getItemQuantity(item.id);
+                      return (
+                        <article key={item.id} className="dish-card">
+                          <div className="dish-image-container">
+                            <img src={item.image} alt={item.name} className="dish-image" />
+                            {item.isVeg && (
+                              <span 
+                                className="dish-veg-badge" 
+                                role="img" 
+                                aria-label="Vegetarian"
+                                title="Vegetarian"
+                              ></span>
+                            )}
+                          </div>
+
+                          <div className="dish-content">
+                            <h3 className="dish-name">{item.name}</h3>
+                            {item.description && (
+                              <p className="dish-description">{item.description}</p>
+                            )}
+                            <div className="dish-footer">
+                              <span className="dish-price" aria-label={`Price ${(item.price * 80).toFixed(0)} rupees`}>
+                                ₹{(item.price * 80).toFixed(0)}
                               </span>
-                              <button
-                                className="quantity-btn"
-                                onClick={() => onUpdateQuantity(item.id, quantity + 1)}
-                                aria-label="Increase quantity"
-                              >
-                                +
-                              </button>
+                              
+                              {quantity === 0 ? (
+                                <button 
+                                  className="dish-add-btn"
+                                  onClick={() => onAddToCart(item)}
+                                  aria-label={`Add ${item.name} to cart`}
+                                >
+                                  Add +
+                                </button>
+                              ) : (
+                                <div className="dish-quantity-controls" role="group" aria-label={`${item.name} quantity controls`}>
+                                  <button
+                                    className="quantity-btn"
+                                    onClick={() => onUpdateQuantity(item.id, quantity - 1)}
+                                    aria-label="Decrease quantity"
+                                  >
+                                    −
+                                  </button>
+                                  <span className="quantity-value" aria-live="polite" aria-atomic="true">
+                                    {quantity}
+                                  </span>
+                                  <button
+                                    className="quantity-btn"
+                                    onClick={() => onUpdateQuantity(item.id, quantity + 1)}
+                                    aria-label="Increase quantity"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-          ))
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            );
+          })
         )}
 
         {!isLoading && Object.keys(menuByCategory).length === 0 && (
